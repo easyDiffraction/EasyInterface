@@ -451,7 +451,7 @@ class CalculatorInterface:
 
     def setPhase(self, phase: Union[Phase, dict]):
         """
-        Modify a phase in the calculator. THe phase will be added if it does not currently exist.
+        Modify a phase in the calculator. The phase will be added if it does not currently exist.
 
         :param phase: easyInterface phase object to be added.
         :raises TypeError: If the phase object is not a easyInterface phase object or dictionary object.
