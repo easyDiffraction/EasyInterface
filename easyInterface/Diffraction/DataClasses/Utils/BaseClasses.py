@@ -1,10 +1,12 @@
+import numpy as np
 from copy import deepcopy
 from typing import Union, Optional, Any, NoReturn
 
 from easyInterface.Utils.units import Unit
 from easyInterface.Utils.DictTools import PathDict, UndoableDict
+from easyInterface import logger
 from easyInterface.Utils.Logging import logging
-from easyInterface import VERBOSE
+#from easyInterface import VERBOSE
 from abc import abstractmethod
 
 
@@ -92,38 +94,56 @@ class Data(LoggedPathDict):
         if not isinstance(unit, Unit):
             # Try to convert the unit to a string
             unit = Unit(unit)
-        super().__init__(value=value, unit=unit, error=0, constraint=None, hide=True, refine=False)
-        self._log = logging.getLogger(__name__)
-        self._log.log(VERBOSE, 'Data object created with default value %s, unit %s', value, unit)
+        super().__init__(value=value, unit=unit, min=-np.Inf, max=np.Inf, error=0, constraint=None, hide=True, refine=False)
+        self._log = logger.getLogger(__class__.__module__)
 
     def __repr__(self) -> str:
         return '{}'.format(self['value'])
 
     @property
     def min(self) -> float:
-        value = self['value']
-        ret = None
-        if value is not None:
-            if isinstance(value, (int, float, complex)) and not isinstance(value, bool):
-                ret = 0.8 * self['value']
-        return ret
+        return self['min']
+
+    @min.setter
+    def min(self, value):
+        self['min'] = value
 
     @property
     def max(self) -> float:
-        value = self['value']
-        ret = None
-        if value is not None:
-            if isinstance(value, (int, float, complex)) and not isinstance(value, bool):
-                ret = 1.2 * self['value']
-        return ret
+        return self['max']
 
+    @max.setter
+    def max(self, value):
+        self['max'] = value
 
 class Base(LoggedPathDict):
     def __init__(self, value: object = None, unit: object = '') -> object:
         super().__init__(header='Undefined', tooltip='', url='', mapping=None, store=Data(value, unit))
+        self._log = logger.getLogger(__class__.__module__)
+        self.updateMinMax()
 
     def __repr__(self) -> str:
         return '{} {}'.format(self.value, self.getItemByPath(['store', 'unit']))
+
+    def updateMinMax(self):
+        self._log.debug(f"value: {self.value}")
+        if not isinstance(self.value, (int, float)):
+            return
+        # unstacked changes (for initial min and max values)
+        if self.min == -np.Inf:
+            if np.isclose([self.value], [0]):
+                self['store'].min = -1
+            elif self.value > 0:
+                self['store'].min = 0.8*self.value
+            elif self.value < 0:
+                self['store'].min = 1.2*self.value
+        if self.max == np.Inf:
+            if np.isclose([self.value], [0]):
+                self['store'].max = 1
+            elif self.value > 0:
+                self['store'].max = 1.2*self.value
+            elif self.value < 0:
+                self['store'].max = 0.8*self.value
 
     @property
     def value(self) -> Any:
@@ -131,7 +151,10 @@ class Base(LoggedPathDict):
 
     @value.setter
     def value(self, value: Any) -> NoReturn:
+        self._log.debug(f"value before, {self.value}, {value}")
         self.setItemByPath(['store', 'value'], value)
+        self._log.debug(f"value after, {self.value}, {value}")
+        ##self.updateMinMax() # TODO: this is not called
 
     @property
     def refine(self) -> bool:
@@ -160,3 +183,21 @@ class Base(LoggedPathDict):
     def valueInUnit(self, newUnit: str) -> float:
         cf = self.unitConversionFactor(newUnit)
         return cf * self.value
+
+    @property
+    def min(self) -> float:
+        return self.getItemByPath(['store', 'min'])
+
+    @min.setter
+    def min(self, value):
+        self.setItemByPath(['store', 'min'], value)
+
+    @property
+    def max(self) -> float:
+        return self.getItemByPath(['store', 'max'])
+
+    @max.setter
+    def max(self, value):
+        self._log.debug(f"max before, {self.max}, {value}")
+        self.setItemByPath(['store', 'max'], value)
+        self._log.debug(f"max after, {self.max}, {value}")
