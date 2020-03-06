@@ -83,6 +83,17 @@ def test_Base_set_value():
     assert b.value == 2
     assert b['store']['value'] == 2
 
+def test_Base_set_min():
+    b = Base(1, 's')
+    b.min = -10
+    assert b.min == -10
+    assert b['store']['min'] == -10
+
+def test_Base_set_max():
+    b = Base(1, 's')
+    b.max = 10
+    assert b.max == 10
+    assert b['store']['max'] == 10
 
 def test_Base_get_refine():
     b = Base(1, 's')
