@@ -331,8 +331,6 @@ class CalculatorInterface:
         Synchronise the phases in project dictionary by queering the calculator object.
         """
         phases = self.calculator.getPhases()
-        self._log.debug(phases)
-        self._log.debug(self.project_dict['phases'])
 
         if len(self.project_dict['phases']) == 0:
             self.project_dict.startBulkUpdate('Bulk update of phases')
@@ -341,8 +339,6 @@ class CalculatorInterface:
             self.project_dict.endBulkUpdate()
         else:
             k, v = self.project_dict['phases'].dictComparison(phases)
-            self._log.debug(k)
-            self._log.debug(v)
             if not k:
                 return
 

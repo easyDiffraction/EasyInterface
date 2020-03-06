@@ -4,9 +4,7 @@ from typing import Union, Optional, Any, NoReturn
 
 from easyInterface.Utils.units import Unit
 from easyInterface.Utils.DictTools import PathDict, UndoableDict
-from easyInterface import logger
 from easyInterface.Utils.Logging import logging
-#from easyInterface import VERBOSE
 from abc import abstractmethod
 
 
@@ -126,7 +124,6 @@ class Base(LoggedPathDict):
         return '{} {}'.format(self.value, self.getItemByPath(['store', 'unit']))
 
     def updateMinMax(self):
-        self._log.debug(f"value: {self.value}")
         if not isinstance(self.value, (int, float)):
             return
         # unstacked changes (for initial min and max values)
