@@ -151,10 +151,7 @@ class Base(LoggedPathDict):
 
     @value.setter
     def value(self, value: Any) -> NoReturn:
-        self._log.debug(f"value before, {self.value}, {value}")
         self.setItemByPath(['store', 'value'], value)
-        self._log.debug(f"value after, {self.value}, {value}")
-        ##self.updateMinMax() # TODO: this is not called
 
     @property
     def refine(self) -> bool:
@@ -198,6 +195,4 @@ class Base(LoggedPathDict):
 
     @max.setter
     def max(self, value):
-        self._log.debug(f"max before, {self.max}, {value}")
         self.setItemByPath(['store', 'max'], value)
-        self._log.debug(f"max after, {self.max}, {value}")
