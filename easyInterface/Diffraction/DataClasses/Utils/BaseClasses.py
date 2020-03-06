@@ -5,6 +5,7 @@ from typing import Union, Optional, Any, NoReturn
 from easyInterface.Utils.units import Unit
 from easyInterface.Utils.DictTools import PathDict, UndoableDict
 from easyInterface.Utils.Logging import logging
+from easyInterface import logger, VERBOSE
 from abc import abstractmethod
 
 
