@@ -1,4 +1,5 @@
 import os
+
 import numpy as np
 import pytest
 
@@ -108,7 +109,7 @@ def test_setPhasesDictFromCryspyObj(cal):
     # cell
     assert phase_dict['Fe3O4']['cell']['length_a'].value == 8.36212
     assert phase_dict['Fe3O4']['cell']['length_b']['store']['hide'] is True
-    assert phase_dict['Fe3O4']['cell']['length_c'].max == 10.034544
+    assert phase_dict['Fe3O4']['cell']['length_c']['store'].max == 10.034544
     assert phase_dict['Fe3O4']['cell']['angle_beta']['store']['error'] == 0.0
     assert phase_dict['Fe3O4']['cell']['angle_gamma']['store']['constraint'] is None
     # space_group
@@ -139,8 +140,7 @@ def test_setPhasesDictFromCryspyObj(cal):
     # Isotropic ADP
     assert phase_dict['Fe3O4']['atoms']['Fe3A']['U_iso_or_equiv']['header'] == 'Biso'
     assert phase_dict['Fe3O4']['atoms']['Fe3A']['U_iso_or_equiv'].value == 0.0
-    assert phase_dict['Fe3O4']['atoms']['Fe3A']['U_iso_or_equiv'].min == -1.0
-    assert phase_dict['Fe3O4']['atoms']['Fe3A']['U_iso_or_equiv'].max == 1.0
+    assert phase_dict['Fe3O4']['atoms']['Fe3A']['U_iso_or_equiv']['store'].max == 1
     assert phase_dict['Fe3O4']['atoms']['O']['U_iso_or_equiv'].value == 0.0
     assert phase_dict['Fe3O4']['atoms']['O']['U_iso_or_equiv']['store']['constraint'] is None
 
@@ -148,8 +148,7 @@ def test_setPhasesDictFromCryspyObj(cal):
     assert phase_dict['Fe3O4']['atoms']['Fe3A']['ADP']['u_11']['header'] == 'U11'
     assert phase_dict['Fe3O4']['atoms']['Fe3A']['ADP']['u_11'].value is None
     assert phase_dict['Fe3O4']['atoms']['Fe3A']['ADP']['u_22'].value is None
-    assert phase_dict['Fe3O4']['atoms']['Fe3A']['ADP']['u_23'].min == -np.Inf
-    assert phase_dict['Fe3O4']['atoms']['Fe3A']['ADP']['u_23'].max == np.Inf
+    assert phase_dict['Fe3O4']['atoms']['Fe3A']['ADP']['u_23']['store'].max is np.Inf
     assert phase_dict['Fe3O4']['atoms']['Fe3B']['ADP']['u_23'].value is None
     assert phase_dict['Fe3O4']['atoms']['Fe3B']['ADP']['u_23']['store']['constraint'] is None
 
@@ -157,8 +156,7 @@ def test_setPhasesDictFromCryspyObj(cal):
     assert phase_dict['Fe3O4']['atoms']['Fe3A']['MSP']['type'].value == 'Cani'
     assert phase_dict['Fe3O4']['atoms']['Fe3A']['MSP']['chi_11'].value == -3.468
     assert phase_dict['Fe3O4']['atoms']['Fe3A']['MSP']['chi_33'].value == -3.468
-    assert phase_dict['Fe3O4']['atoms']['Fe3A']['MSP']['chi_23'].min == -1.0
-    assert phase_dict['Fe3O4']['atoms']['Fe3A']['MSP']['chi_23'].max == 1.0
+    assert phase_dict['Fe3O4']['atoms']['Fe3A']['MSP']['chi_23']['store'].max == 1
     assert phase_dict['Fe3O4']['atoms']['Fe3B']['MSP']['chi_23'].value == 0.0
     assert phase_dict['Fe3O4']['atoms']['Fe3B']['MSP']['chi_23']['store']['refine'] is False
 
@@ -443,63 +441,3 @@ def test_addExperimentDefinition(cal):
     assert exp_added['phase']['Fe3O4']['name'] == exp_ref['phase']['Fe3O4']['name']
     assert exp_added['phase']['Fe3O4']['scale'].value == exp_ref['phase']['Fe3O4']['scale'].value
 
-
-def test_addPhaseToExp():
-    calc = CryspyCalculator('')
-    interface = CalculatorInterface(calc)
-    interface.addExperimentDefinition(exp_path)
-    interface.addPhaseDefinition(phase_path)
-    interface.removePhaseFromExp('pd', 'Fe3O4')
-    interface.addPhaseToExp('pd', 'Fe3O4', scale=1.0)
-
-    exp_ref = interface.getExperiment('pd')
-    assert exp_ref['name'] == 'pd'
-    assert 'Fe3O4' in exp_ref['phase'].keys()
-    assert exp_ref['phase']['Fe3O4']['scale'].value == 1.0
-
-
-def test_removePhaseFromExp(cal):
-
-    cal.removePhaseFromExp('pd', 'Fe3O4')
-
-    exp_ref = cal.getExperiment('pd')
-    assert exp_ref['name'] == 'pd'
-    assert 'Fe3O4' not in exp_ref['phase'].keys()
-
-
-def test_addExperiment(cal):
-    exp2 = cal.getExperiment('pd')
-    exp2['name'] = 'Testing'
-
-    cal.addExperiment(exp2)
-
-    assert len(cal.project_dict['experiments']) == 2
-    assert 'Testing' in cal.project_dict['experiments'].keys()
-    assert cal.project_dict['experiments']['Testing']['name'] == 'Testing'
-    assert cal.project_dict['experiments']['Testing'] == exp2
-
-
-def test_removeExperiment(cal):
-    exp2 = cal.getExperiment('pd')
-    exp2['name'] = 'Testing'
-    cal.addExperiment(exp2)
-    cal.removeExperiment('pd')
-
-    assert len(cal.project_dict['experiments']) == 1
-    assert 'pd' not in cal.project_dict['experiments'].keys()
-    assert 'Testing' in cal.project_dict['experiments'].keys()
-    assert cal.project_dict['experiments']['Testing']['name'] == 'Testing'
-    assert cal.project_dict['experiments']['Testing'] == exp2
-
-
-def test_getExperiment_None(cal):
-    exp2 = cal.getExperiment('pd')
-    exp2['name'] = 'Testing'
-    cal.addExperiment(exp2)
-
-    exps = cal.getExperiment(None)
-    assert len(exps) == 2
-    assert 'pd' in exps.keys()
-    assert 'Testing' in exps.keys()
-    assert exps['Testing']['name'] == 'Testing'
-    assert exps['pd']['name'] == 'pd'

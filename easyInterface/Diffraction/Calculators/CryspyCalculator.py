@@ -1,9 +1,10 @@
 import os
 
-from typing import Tuple
+from typing import Tuple, NoReturn, Optional
 
 import cryspy
 import pycifstar
+import random
 
 from asteval import Interpreter
 
@@ -113,7 +114,7 @@ class CryspyCalculator:
         self._log.debug('<---- End')
         return rcif_content
 
-    def setExpsDefinition(self, exp_path: str):
+    def setExpsDefinition(self, exp_path: str) -> NoReturn:
         self._log.debug('----> Start')
         """
         Set cryspy.experiments from a single file. *Removes all others*
@@ -142,7 +143,7 @@ class CryspyCalculator:
             self._cryspy_obj.experiments[0].phase.items[0] = (self._phase_name[0])
         self._log.debug('<---- End')
 
-    def addExpsDefinition(self, exp_path: str):
+    def addExpsDefinition(self, exp_path: str) -> NoReturn:
         self._log.debug('----> Start')
         """
         Add an experiment to cryspy.experiments
@@ -167,6 +168,11 @@ class CryspyCalculator:
             self._log.error('Experiment cif data is malformed')
         if self._cryspy_obj.experiments is not None:
             self._log.info('Adding experiment to cryspy experiments')
+            # Check for the same name and modify if exist
+            if experiment.data_name in self._experiment_name:
+                new_name = experiment.data_name + str(random.randint(0, 100))
+                self._log.warning(f'Experiment {experiment.data_name} exists, renaming to {new_name}')
+                experiment.data_name = new_name
             self._cryspy_obj.experiments = [*self._cryspy_obj.experiments, experiment]
         else:
             self._log.info('Experiment set from cif content')
@@ -174,7 +180,7 @@ class CryspyCalculator:
         self._experiment_name = [experiment.data_name for experiment in self._cryspy_obj.experiments]
         self._log.debug('<---- End')
 
-    def removeExpsDefinition(self, name: str):
+    def removeExpsDefinition(self, name: str) -> NoReturn:
         self._log.debug('----> Start')
         if name in self._experiment_name:
             self._log.info('Experiment found, removing')
@@ -187,7 +193,7 @@ class CryspyCalculator:
             raise KeyError
         self._log.debug('<---- End')
 
-    def setPhaseDefinition(self, phases_path: str):
+    def setPhaseDefinition(self, phases_path: str) -> NoReturn:
         self._log.debug('----> Start')
 
         """
@@ -232,7 +238,7 @@ class CryspyCalculator:
                 # self._cryspy_obj.experiments[0].phase.items[0] = (new_phase_name)
         self._log.debug('<---- End')
 
-    def addPhaseDefinition(self, phases_path: str):
+    def addPhaseDefinition(self, phases_path: str) -> NoReturn:
         self._log.debug('----> Start')
         """
         Parse the relevant phases file and update the corresponding model
@@ -256,6 +262,11 @@ class CryspyCalculator:
         phase = Crystal().from_cif(phases_rcif_content)
         if self._cryspy_obj.crystals is not None:
             self._log.info('Adding phase to existing phases')
+            # Check for the same name and modify if exist
+            if phase.data_name in self._phase_name:
+                new_name = phase.data_name + str(random.randint(0, 100))
+                self._log.warning(f'Phase {phase.data_name} exists, renaming to {new_name}')
+                phase.data_name = new_name
             self._cryspy_obj.crystals = [*self._cryspy_obj.crystals, phase]
         else:
             self._log.info('Setting cryspy crystal to phase')
@@ -263,7 +274,7 @@ class CryspyCalculator:
         self._phase_name = [phase.data_name for phase in self._cryspy_obj.crystals]
         self._log.debug('<---- End')
 
-    def removePhaseDefinition(self, name: str):
+    def removePhaseDefinition(self, name: str) -> NoReturn:
         self._log.debug('----> Start')
         if name in self._phase_name:
             crystals = self._cryspy_obj.crystals
@@ -282,7 +293,7 @@ class CryspyCalculator:
         self._log.debug('<---- End')
 
     def writeMainCif(self, save_dir: str, filename: str = 'main.cif', exp_name: str = 'experiments.cif',
-                     phase_name: str = 'phases.cif'):
+                     phase_name: str = 'phases.cif') -> NoReturn:
         self._log.debug('----> Start')
         self._log.info('Writing main cif file')
         if not isinstance(self._cryspy_obj, cryspy.scripts.cl_rhochi.RhoChi):
@@ -301,7 +312,7 @@ class CryspyCalculator:
             self._log.warning('No permission to write to %s', save_to)
         self._log.debug('<---- End')
 
-    def writePhaseCif(self, save_dir: str, phase_name: str = 'phases.cif'):
+    def writePhaseCif(self, save_dir: str, phase_name: str = 'phases.cif') -> NoReturn:
         self._log.debug('----> Start')
         save_to = os.path.join(save_dir, phase_name)
         if not isinstance(self._cryspy_obj, cryspy.scripts.cl_rhochi.RhoChi):
@@ -323,7 +334,7 @@ class CryspyCalculator:
             self._log.warning('No permission to write to %s', save_to)
         self._log.debug('<---- End')
 
-    def writeExpCif(self, save_dir: str, exp_name: str = 'experiments.cif'):
+    def writeExpCif(self, save_dir: str, exp_name: str = 'experiments.cif') -> NoReturn:
         if not isinstance(self._cryspy_obj, cryspy.scripts.cl_rhochi.RhoChi):
             self._log.warning('Cryspy object is malformed. Failure...')
             self._log.debug('<---- End')
@@ -344,7 +355,7 @@ class CryspyCalculator:
         self._log.debug('<---- End')
 
     def saveCifs(self, save_dir: str, filename: str = 'main.cif', exp_name: str = 'experiments.cif',
-                 phase_name: str = 'phases.cif'):
+                 phase_name: str = 'phases.cif') -> NoReturn:
         self._log.debug('----> Start')
         try:
             self.writeMainCif(save_dir, filename)
@@ -356,7 +367,7 @@ class CryspyCalculator:
         self._log.debug('<---- End')
 
     @staticmethod
-    def _createProjItemFromObj(func, keys: list, obj_list: list):
+    def _createProjItemFromObj(func, keys: list, obj_list: list) -> list:
         """ ... """
         ret_vals = func(
             *[item.value if isinstance(item, cryspy.common.cl_fitable.Fitable) else item for item in obj_list])
@@ -383,7 +394,7 @@ class CryspyCalculator:
         self._log.info(phases)
         return phases
 
-    def readPhaseDefinition(self, phases_path):
+    def readPhaseDefinition(self, phases_path) -> Optional[Tuple[Phase, cpPhase]]:
         self._log.debug('----> Start')
 
         """
@@ -403,8 +414,8 @@ class CryspyCalculator:
         self._log.debug('<---- End')
         return phase, phase_cp
 
-    def _makePhase(self, calculator_phase: Crystal):
-        # This is ~180ms per atom in phase. Limited by cryspy 
+    def _makePhase(self, calculator_phase: Crystal) -> Phase:
+        # This is ~180ms per atom in phase. Limited by cryspy
         calculator_phase_name = calculator_phase.data_name
         # This group is < 1ms
         space_group = self._getPhasesSpace_group(calculator_phase_name)
@@ -413,7 +424,7 @@ class CryspyCalculator:
         # Atom sites ~ 6ms
         atoms = list(map(lambda x: self._makeAtom(calculator_phase, x), calculator_phase.atom_site.label))
         atoms = Atoms(atoms)
-        
+
         for key in atoms:
             phase['atoms'][key] = atoms[key]
 
@@ -421,7 +432,7 @@ class CryspyCalculator:
         self._makeAtomSites(phase, calculator_phase)
         return phase
 
-    def _makeAtom(self, calculator_phase: Crystal, label: str):
+    def _makeAtom(self, calculator_phase: Crystal, label: str) -> Atom:
         # This is ~2ms
         i = calculator_phase.atom_site.label.index(label)
         calculator_atom_site = calculator_phase.atom_site
@@ -433,7 +444,7 @@ class CryspyCalculator:
                 ii = len(self._cryspy_obj.crystals)
         else:
             # There are no crystals yet. assume that it will be added.
-            ii = 0  
+            ii = 0
         mapping_base = 'self._cryspy_obj.crystals'
         mapping_phase = mapping_base + '[{}]'.format(ii)
         mapping_atom = mapping_phase + '.atom_site'
@@ -526,7 +537,7 @@ class CryspyCalculator:
         return atom
 
     @staticmethod
-    def _makeAtomSites(phase: Phase, calculator_phase: Crystal):
+    def _makeAtomSites(phase: Phase, calculator_phase: Crystal) -> NoReturn:
         atom_site_list = [[], [], [], []]
         # Atom sites for structure view (all the positions inside unit cell of 1x1x1)
         for x, y, z, scat_length_neutron in zip(calculator_phase.atom_site.fract_x,
@@ -583,7 +594,7 @@ class CryspyCalculator:
         space_group['origin_choice']['mapping'] = mapping_phase + '.space_group.it_coordinate_system_code'
         return space_group
 
-    def _getPhaseCell(self, phase_name:str) -> Cell:
+    def _getPhaseCell(self, phase_name: str) -> Cell:
         mapping_base = 'self._cryspy_obj.crystals'
         i = self._phase_name.index(phase_name)
         calculator_phase = self._cryspy_obj.crystals[i]
@@ -781,14 +792,14 @@ class CryspyCalculator:
         return calculations
 
     @staticmethod
-    def _setCalculatorObjFromProjectDict(item: cryspy.common.cl_fitable.Fitable, data: Base):
+    def _setCalculatorObjFromProjectDict(item: cryspy.common.cl_fitable.Fitable, data: Base) -> NoReturn:
         if not isinstance(item, cryspy.common.cl_fitable.Fitable):
             return
         item.value = data.value
         item.refinement = data['store']['refine']
 
     @staticmethod
-    def _createProjDictFromObj(item: 'PathDict', obj: cryspy.common.cl_fitable.Fitable):
+    def _createProjDictFromObj(item: 'PathDict', obj: cryspy.common.cl_fitable.Fitable) -> NoReturn:
         """ ... """
         item.setItemByPath(['store', 'value'], obj)
         if not isinstance(obj, cryspy.common.cl_fitable.Fitable):
@@ -799,7 +810,7 @@ class CryspyCalculator:
         item.setItemByPath(['store', 'hide'], obj.value)
         item.setItemByPath(['store', 'refine'], obj.value)
 
-    def setPhases(self, phases: Phases):
+    def setPhases(self, phases: Phases) -> NoReturn:
         """Set phases (sample model tab in GUI)"""
         self._log.info('-> start')
         self._cryspy_obj.crystals = []
@@ -807,7 +818,7 @@ class CryspyCalculator:
             self.addPhase(phases[phase_name])
         self._log.info('<- end')
 
-    def setExperiments(self, experiments: Experiments):
+    def setExperiments(self, experiments: Experiments) -> NoReturn:
         """Set experiments (Experimental data tab in GUI)"""
         self._log.info('-> start')
         self._cryspy_obj.experiments = []
@@ -815,7 +826,7 @@ class CryspyCalculator:
             self.addExperiment(experiments[experiment_name])
         self._log.info('<- end')
 
-    def setObjFromProjectDicts(self, phases: Phases, experiments: Experiments):
+    def setObjFromProjectDicts(self, phases: Phases, experiments: Experiments) -> NoReturn:
         """Set all the cryspy parameters from project dictionary"""
         self.setPhases(phases)
         self.setExperiments(experiments)
@@ -840,7 +851,7 @@ class CryspyCalculator:
         }
 
     @time_it
-    def refine(self):
+    def refine(self) -> Tuple[dict, dict]:
         """refinement ..."""
         refinement_res = self._cryspy_obj.refine()
         scipy_refinement_res = refinement_res['res']
@@ -862,12 +873,12 @@ class CryspyCalculator:
         chi_sq, n_res = self.getChiSq()
         return chi_sq / n_res
 
-    def _mappedValueUpdater(self, item_str, value):
+    def _mappedValueUpdater(self, item_str, value) -> NoReturn:
         aeval = Interpreter(usersyms=dict(self=self))
         item = aeval(item_str)
         item.value = value
 
-    def _mappedRefineUpdater(self, item_str, value):
+    def _mappedRefineUpdater(self, item_str, value) -> NoReturn:
         aeval = Interpreter(usersyms=dict(self=self))
         item = aeval(item_str)
         item.refinement = value
@@ -883,7 +894,7 @@ class CryspyCalculator:
         return self._phase_name
 
     @time_it
-    def addPhase(self, phase: Phase):
+    def addPhase(self, phase: Phase) -> NoReturn:
         phase_obj = self._createPhaseObj(phase)
         if self._cryspy_obj.crystals is not None:
             self._cryspy_obj.crystals = [phase_obj, *self._cryspy_obj.crystals]
@@ -893,7 +904,7 @@ class CryspyCalculator:
         self._cryspy_obj.apply_constraint()
 
     @time_it
-    def addExperiment(self, experiment: Experiment):
+    def addExperiment(self, experiment: Experiment) -> NoReturn:
         exp_obj = self._createExperimentObj(experiment)
         if self._cryspy_obj.experiments is not None:
             self._cryspy_obj.experiments = [exp_obj, *self._cryspy_obj.experiments]
@@ -902,7 +913,7 @@ class CryspyCalculator:
         self._experiment_name = [experiment.data_name for experiment in self._cryspy_obj.experiments]
 
     @staticmethod
-    def _createPhaseObj(phase: Phase):
+    def _createPhaseObj(phase: Phase) -> Crystal:
         this_cell = cpCell(length_a=phase['cell']['length_a'].value,
                            length_b=phase['cell']['length_b'].value,
                            length_c=phase['cell']['length_c'].value,
@@ -954,7 +965,7 @@ class CryspyCalculator:
         return phase_obj
 
     @staticmethod
-    def _createExperimentObj(experiment: Experiment):
+    def _createExperimentObj(experiment: Experiment) -> Pd:
         # First create a background
         backgrounds = PdBackgroundL(
             list(
@@ -1010,13 +1021,13 @@ class CryspyCalculator:
         return Pd(data_name=experiment['name'], background=backgrounds, resolution=resolution, meas=pattern,
                   phase=phases, setup=instrument)
 
-    def associatePhaseToExp(self, exp_name: str, phase_name: str, scale: float):
+    def associatePhaseToExp(self, exp_name: str, phase_name: str, scale: float) -> NoReturn:
         cryspyPhase = cpPhase(label=phase_name, scale=scale)
         idx = self._experiment_name.index(exp_name)
         self._cryspy_obj.experiments[idx].phase = PhaseL([cryspyPhase, *self._cryspy_obj.experiments[idx].phase.item])
         self._log.info('Associated phase %s to experiment %s', phase_name, exp_name)
 
-    def disassociatePhaseToExp(self, exp_name: str, phase_name: str):
+    def disassociatePhaseToExp(self, exp_name: str, phase_name: str) -> NoReturn:
         idx = self._experiment_name.index(exp_name)
         exp_phases = self._cryspy_obj.experiments[idx].phase
         exp_phases = PhaseL(
