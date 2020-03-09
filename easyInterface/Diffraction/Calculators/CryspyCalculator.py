@@ -4,7 +4,6 @@ from typing import Tuple, NoReturn, Optional
 
 import cryspy
 import pycifstar
-import random
 
 from asteval import Interpreter
 
@@ -41,7 +40,7 @@ CALCULATOR_INFO = {
 
 
 class CryspyCalculator:
-    def __init__(self, main_rcif_path: Union[str, type(None)] = None):
+    def __init__(self, main_rcif_path: Union[str, type(None)] = None) -> None:
         self._log = logging.getLogger(__class__.__module__)
         self._experiment_name = []
         self._main_rcif_path = main_rcif_path
@@ -115,10 +114,10 @@ class CryspyCalculator:
         return rcif_content
 
     def setExpsDefinition(self, exp_path: str) -> NoReturn:
-        self._log.debug('----> Start')
         """
         Set cryspy.experiments from a single file. *Removes all others*
         """
+        self._log.debug('----> Start')
         rcif_content = ""
         if not isinstance(exp_path, (str, os.PathLike)):
             self._log.warning('Experiment definition is not a string or path')
@@ -146,10 +145,10 @@ class CryspyCalculator:
         self._log.debug('<---- End')
 
     def addExpDefinitionFromString(self, exp_rcif_content: str) -> NoReturn:
-        self._log.debug('----> Start')
         """
         Set cryspy.experiments from a string. Appends to current experiments if available.
         """
+        self._log.debug('----> Start')
         experiment = Pd.from_cif(exp_rcif_content)
         if experiment is None:
             self._log.error('Experiment cif data is malformed')
@@ -161,10 +160,10 @@ class CryspyCalculator:
         self._log.debug('<---- End')
 
     def addExpsDefinition(self, exp_path: str) -> NoReturn:
-        self._log.debug('----> Start')
         """
         Add an experiment to cryspy.experiments
         """
+        self._log.debug('----> Start')
         if not isinstance(exp_path, (str, os.PathLike)):
             self._log.warning('Experiment definition is not a string or path')
             return
@@ -187,7 +186,11 @@ class CryspyCalculator:
             self._log.info('Adding experiment to cryspy experiments')
             # Check for the same name and modify if exist
             if experiment.data_name in self._experiment_name:
-                new_name = experiment.data_name + str(random.randint(0, 100))
+                index = 0
+                new_name = experiment.data_name
+                while new_name in self._experiment_name:
+                    new_name = experiment.data_name + str(index)
+                    index += 1
                 self._log.warning(f'Experiment {experiment.data_name} exists, renaming to {new_name}')
                 experiment.data_name = new_name
             self._cryspy_obj.experiments = [*self._cryspy_obj.experiments, experiment]
@@ -211,11 +214,10 @@ class CryspyCalculator:
         self._log.debug('<---- End')
 
     def setPhaseDefinition(self, phases_path: str) -> NoReturn:
-        self._log.debug('----> Start')
-
         """
         Parse the relevant phases file and update the corresponding model
         """
+        self._log.debug('----> Start')
         rcif_content = ""
         if not isinstance(phases_path, (str, os.PathLike)):
             self._log.warning('Phase definition is not a string or path')
@@ -256,10 +258,10 @@ class CryspyCalculator:
         self._log.debug('<---- End')
 
     def addPhaseDefinition(self, phases_path: str) -> NoReturn:
-        self._log.debug('----> Start')
         """
         Parse the relevant phases file and update the corresponding model
         """
+        self._log.debug('----> Start')
         if not isinstance(phases_path, (str, os.PathLike)):
             self._log.warning('Phase definition is not a string or path')
             return
@@ -281,7 +283,11 @@ class CryspyCalculator:
             self._log.info('Adding phase to existing phases')
             # Check for the same name and modify if exist
             if phase.data_name in self._phase_name:
-                new_name = phase.data_name + str(random.randint(0, 100))
+                index = 0
+                new_name = phase.data_name
+                while new_name == self._experiment_name:
+                    new_name = phase.data_name + '_' + str(index)
+                    index += 1
                 self._log.warning(f'Phase {phase.data_name} exists, renaming to {new_name}')
                 phase.data_name = new_name
             self._cryspy_obj.crystals = [*self._cryspy_obj.crystals, phase]
@@ -412,11 +418,10 @@ class CryspyCalculator:
         return phases
 
     def readPhaseDefinition(self, phases_path) -> Optional[Tuple[Phase, cpPhase]]:
-        self._log.debug('----> Start')
-
         """
         Parse the relevant phases file and update the corresponding model
         """
+        self._log.debug('----> Start')
         phases_rcif_content = ""
         if not isinstance(phases_path, (str, os.PathLike)):
             self._log.warning('Phase definition is not a string or path')

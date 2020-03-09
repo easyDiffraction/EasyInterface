@@ -112,14 +112,6 @@ def test_setPhaseValue(cal):
     cal.setPhaseValue('Fe3O4', ['cell', 'length_a'], 5)
     assert cal.project_dict['phases']['Fe3O4']['cell']['length_a'].value == 5
 
-
-def test_setPhase(cal):
-    phase = cal.getPhase('Fe3O4')
-    cal.project_dict['phases']['Fe3O4']['cell']['length_a'].value = 2
-    cal.setPhase(phase)
-    assert cal.project_dict['phases']['Fe3O4']['cell']['length_a'].value == 8.36212
-
-
 # def test_setPhases(cal):
 #     phase2 = cal.getPhase('Fe3O4')
 #     phase2['phasename'] = 'Fe3O4_2'
@@ -187,6 +179,7 @@ def test_setPhasesDictFromCryspyObj(cal):
     assert phase_dict['Fe3O4']['atoms']['Fe3A']['ADP']['u_11'].value is None
     assert phase_dict['Fe3O4']['atoms']['Fe3A']['ADP']['u_22'].value is None
     assert phase_dict['Fe3O4']['atoms']['Fe3A']['ADP']['u_23']['store'].max is np.Inf
+    assert phase_dict['Fe3O4']['atoms']['Fe3A']['ADP']['u_23']['store'].min is -np.Inf
     assert phase_dict['Fe3O4']['atoms']['Fe3B']['ADP']['u_23'].value is None
     assert phase_dict['Fe3O4']['atoms']['Fe3B']['ADP']['u_23']['store']['constraint'] is None
 

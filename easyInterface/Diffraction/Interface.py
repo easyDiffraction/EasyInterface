@@ -23,7 +23,7 @@ class ProjectDict(LoggedUndoableDict):
     """
 
     def __init__(self, interface: Interface, app: App, calculator: Calculator, info: Info, phases: Phases,
-                 experiments: Experiments, calculations: Calculations):
+                 experiments: Experiments, calculations: Calculations) -> None:
         """
         Create the main project dictionary from base constituent classes. Generally called from one of the constructor
         methods.
@@ -42,7 +42,7 @@ class ProjectDict(LoggedUndoableDict):
         self._log.debug('Created a project dictionary')
 
     @classmethod
-    def default(cls):
+    def default(cls) -> 'ProjectDict':
         """
         Create a default and empty project dictionary
 
@@ -60,7 +60,7 @@ class ProjectDict(LoggedUndoableDict):
     @classmethod
     def fromPars(cls, experiments: Union[Experiments, Experiment, List[Experiment]],
                  phases: Union[Phases, Phase, List[Phase]],
-                 calculations: Optional[Union[Calculations, Calculation, List[Calculation]]] = {}):
+                 calculations: Optional[Union[Calculations, Calculation, List[Calculation]]] = {}) -> 'ProjectDict':
         """
         Create a main project dictionary from phases and experiments.
 
@@ -89,7 +89,7 @@ class CalculatorInterface:
     Interface to calculators in the `easyInterface.Diffraction.Calculator` class.
     """
 
-    def __init__(self, calculator: 'easyInterface.Diffraction.Calculator'):
+    def __init__(self, calculator: 'easyInterface.Diffraction.Calculator') -> None:
         """
         Initialise an interface with a `calculator` of the `easyInterface.Diffraction.Calculator` class.
 
