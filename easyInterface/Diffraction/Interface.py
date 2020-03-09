@@ -1,5 +1,5 @@
 __author__ = 'simonward'
-__version__ = "2020_02_01"
+__version__ = "2020_03_09"
 
 import os
 from datetime import datetime
@@ -250,6 +250,17 @@ class CalculatorInterface:
         :param exp_path: Path to a experiment file (`.cif`)
         """
         self.calculator.setExpsDefinition(exp_path)
+        # This will re-create all local directories
+        self.updateExperiments()
+
+    def setExperimentDefinitionFromString(self, exp_cif_string: str) -> NoReturn:
+        """
+        Set an experiment/s to be simulated from a string. Note that this will not have any crystallographic phases
+        associated with it.
+
+        :param exp_cif_string: String containing the contents of an experiment file (`.cif`)
+        """
+        self.calculator.addExpDefinitionFromString(exp_cif_string)
         # This will re-create all local directories
         self.updateExperiments()
 
@@ -797,8 +808,22 @@ class CalculatorInterface:
         :param key: Location of update
         :param value: Update value
         """
-        update_str = self.project_dict.getItemByPath(key)['mapping']
-        self.calculator._mappedValueUpdater(update_str, value)
+
+        def code_error(keys):
+            if keys[0] == 'phases':
+                self.updatePhases()
+            else:
+                self.updateExperiments()
+            self.setCalculatorFromProject()
+            self.__last_updated = datetime.now()
+        try:
+            update_str = self.project_dict.getItemByPath(key)['mapping']
+            try:
+                self.calculator._mappedValueUpdater(update_str, value)
+            except TypeError:
+                code_error(key)
+        except (KeyError, TypeError):
+            code_error(key)
         self.__last_updated = datetime.now()
 
     def _mappedRefineUpdater(self, key: list, value: bool) -> NoReturn:
@@ -808,6 +833,19 @@ class CalculatorInterface:
         :param key: Location of update
         :param value: Update value
         """
-        update_str = self.project_dict.getItemByPath(key)['mapping']
-        self.calculator._mappedRefineUpdater(update_str, value)
 
+        def code_error(keys):
+            if keys[0] == 'phases':
+                self.updatePhases()
+            else:
+                self.updateExperiments()
+            self.setCalculatorFromProject()
+            self.__last_updated = datetime.now()
+        try:
+            update_str = self.project_dict.getItemByPath(key)['mapping']
+            try:
+                self.calculator._mappedRefineUpdater(update_str, value)
+            except TypeError:
+                code_error(key)
+        except (KeyError, TypeError):
+            code_error(key)

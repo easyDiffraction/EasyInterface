@@ -136,11 +136,28 @@ class CryspyCalculator:
             return
 
         experiment = Pd.from_cif(exp_rcif_content)
+        if experiment is None:
+            self._log.error('Experiment cif data is malformed')
         self._cryspy_obj.experiments = [experiment]
         self._experiment_name = [experiment.data_name for experiment in self._cryspy_obj.experiments]
         self._log.info('Setting cryspy experiments from cif content')
         if self._cryspy_obj.crystals is not None:
             self._cryspy_obj.experiments[0].phase.items[0] = (self._phase_name[0])
+        self._log.debug('<---- End')
+
+    def addExpDefinitionFromString(self, exp_rcif_content: str) -> NoReturn:
+        self._log.debug('----> Start')
+        """
+        Set cryspy.experiments from a string. Appends to current experiments if available.
+        """
+        experiment = Pd.from_cif(exp_rcif_content)
+        if experiment is None:
+            self._log.error('Experiment cif data is malformed')
+        if self._cryspy_obj.experiments is None:
+            self._cryspy_obj.experiments = [experiment]
+        else:
+            self._cryspy_obj.experiments = [*self._cryspy_obj.experiments, experiment]
+        self._experiment_name = [experiment.data_name for experiment in self._cryspy_obj.experiments]
         self._log.debug('<---- End')
 
     def addExpsDefinition(self, exp_path: str) -> NoReturn:

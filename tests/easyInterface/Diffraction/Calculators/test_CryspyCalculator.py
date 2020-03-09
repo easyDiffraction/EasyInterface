@@ -60,6 +60,14 @@ def test__create_cryspy_obj(cal):
 def test__parse_segment(cal):
     assert True
 
+def test_addExpDefinitionFromString(cal):
+    file = os.path.join(test_data, 'experiments.cif')
+
+    with open(file, 'r') as file_reader:
+        exp_str = file_reader.read()
+    cal.addExpDefinitionFromString(exp_str)
+    assert len(cal._cryspy_obj.experiments) == 2
+
 
 def test_set_exps_definition(cal):
     file = os.path.join(test_data, 'experiments.cif')
