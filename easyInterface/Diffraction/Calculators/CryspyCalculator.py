@@ -333,6 +333,8 @@ class CryspyCalculator:
             main_block.to_file(save_to)
         except PermissionError:
             self._log.warning('No permission to write to %s', save_to)
+        except AttributeError:
+            self._log.warning('No information stored in the object. Saving failed')
         self._log.debug('<---- End')
 
     def writePhaseCif(self, save_dir: str, phase_name: str = 'phases.cif') -> NoReturn:
