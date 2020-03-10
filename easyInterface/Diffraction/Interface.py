@@ -237,7 +237,7 @@ class CalculatorInterface:
         :param phase_name: The name of the phase to be removed.
         :raises KeyError: If the exp_name or phase_name are unknown
         """
-        self.calculator.disassociatePhaseToExp(exp_name, phase_name)
+        self.calculator.disassociatePhaseFromExp(exp_name, phase_name)
         self.project_dict.rmItemByPath(['experiments', exp_name, 'phase', phase_name])
         self.__last_updated = datetime.now()
 
@@ -463,12 +463,12 @@ class CalculatorInterface:
         calculation = self.project_dict['calculations'][calculation_name]
         return calculation
 
-    def setPhase(self, phase: Union[Phase, dict]) -> NoReturn:
+    def setPhase(self, phase: Phase) -> NoReturn:
         """
         Modify a phase in the calculator. The phase will be added if it does not currently exist.
 
         :param phase: easyInterface phase object to be added.
-        :raises TypeError: If the phase object is not a easyInterface phase object or dictionary object.
+        :raises TypeError: If the phase object is not a easyInterface phase object.
         """
         if isinstance(phase, Phase):
             new_phase_name = phase['phasename']
@@ -482,7 +482,7 @@ class CalculatorInterface:
         else:
             raise TypeError
 
-    def setPhases(self, phases: Union[Phase, Phases, None] = None) -> NoReturn:
+    def setPhases(self, phases: Union[Phase, Phases]) -> NoReturn:
         """
         Set the phases in the calculator to an easyInterface phases object. If a phase in the supplied phases exists
         then the phase will be modified, if not, it will be added.
@@ -536,13 +536,13 @@ class CalculatorInterface:
         self.project_dict.setItemByPath(['phases', phase, *key, 'store', 'value'], value)
         self._mappedValueUpdater(['phases', phase, *key], value)
 
-    def setExperiment(self, experiment: Union[Experiment, dict]) -> NoReturn:
+    def setExperiment(self, experiment: Experiment) -> NoReturn:
         """
         Set an experiment to the project dictionary. If an experiment by the same name exists, the necessary changes will
         be propagated. If if does not exist, then it will be added to the project dictionary.
 
         :param experiment: Experiment container with experimental information
-        :raises TypeError: If the input isn't an `Experiment` or dictionary of an experiment.
+        :raises TypeError: If the input isn't an `Experiment`.
         """
         if isinstance(experiment, Experiment):
             new_phase_name = experiment['name']

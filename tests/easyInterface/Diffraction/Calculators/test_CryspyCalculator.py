@@ -40,7 +40,7 @@ def file_io_fixture():
 
 def test_creationEmptyFile():
     calc = CryspyCalculator('baah')
-    assert calc._phase_name == []
+    assert calc._phase_names == []
 
 
 def test_calculator_info():
@@ -76,20 +76,20 @@ def test_set_exps_definition(cal):
     cal.setExpsDefinition(file)
     assert len(cal._cryspy_obj.experiments) == 1
     assert cal._experiments_path == file
-    assert cal._experiment_name == ['pd']
+    assert cal._experiment_names == ['pd']
 
 
 def test_add_exps_definition(cal):
     file = os.path.join(test_data, 'experiments2.cif')
     cal.addExpsDefinition(file)
     assert len(cal._cryspy_obj.experiments) == 2
-    assert cal._experiment_name == ['pd', 'pd2']
+    assert cal._experiment_names == ['pd', 'pd2']
 
 
 def test_remove_exps_definition(cal):
     cal.removeExpsDefinition('pd')
     assert cal._cryspy_obj.experiments is None
-    assert cal._experiment_name == []
+    assert cal._experiment_names == []
 
 
 def test_set_phase_definition(cal):
@@ -99,22 +99,22 @@ def test_set_phase_definition(cal):
     NEW_PHASE_FILE = os.path.join(test_data, 'phases_2.cif')
     file_path = NEW_PHASE_FILE
     cal.setPhaseDefinition(file_path)
-    assert 'Fe2Co1O4' in cal._phase_name
+    assert 'Fe2Co1O4' in cal._phase_names
     assert len(cal._cryspy_obj.crystals) == 1
 
 
 def test_add_phase_definition(cal):
     file = os.path.join(test_data, 'phases_2.cif')
     cal.addPhaseDefinition(file)
-    assert len(cal._phase_name) == 2
+    assert len(cal._phase_names) == 2
     assert len(cal._cryspy_obj.crystals) == 2
-    assert cal._phase_name == ['Fe3O4', 'Fe2Co1O4']
+    assert cal._phase_names == ['Fe3O4', 'Fe2Co1O4']
 
 
 def test_remove_phase_definition(cal):
     cal.removePhaseDefinition('Fe3O4')
     assert cal._cryspy_obj.crystals is None
-    assert cal._phase_name == []
+    assert cal._phase_names == []
 
 
 def test_write_main_cif(cal, file_io_fixture):
