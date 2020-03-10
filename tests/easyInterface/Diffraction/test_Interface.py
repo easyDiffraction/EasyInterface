@@ -1,4 +1,5 @@
 import os
+import tempfile
 
 import numpy as np
 import pytest
@@ -617,3 +618,47 @@ def test_getExperiment_None(cal):
     assert 'Testing' in exps.keys()
     assert exps['Testing']['name'] == 'Testing'
     assert exps['pd']['name'] == 'pd'
+
+
+def test_cif_writers(cal):
+
+    def file_tester(path: str, option=None):
+
+        if option is None:
+            option = ['main', 'phases', 'experiments']
+
+        if 'main' in option:
+            assert os.path.exists(os.path.join(path, 'main.cif'))
+            with open(os.path.join(path, 'main.cif'), 'r') as new_reader:
+                new_data = new_reader.read()
+                assert new_data.find('_name Fe3O4') is not -1
+                assert new_data.find('_phases phases.cif') is not -1
+                assert new_data.find('_experiments experiments.cif') is not -1
+        elif'phases' in option:
+            assert os.path.exists(os.path.join(path, 'phases.cif'))
+            with open(os.path.join(path, 'phases.cif'), 'r') as new_reader:
+                new_data = new_reader.read()
+                assert new_data.find('\ndata_Fe3O4') is not -1
+                assert new_data.find('\n_cell_length_b 8.36212') is not -1
+                assert new_data.find('\nFe3B Fe3+ 0.5 0.5 0.5 1.0 Uiso d 0.0 16 ') is not -1
+                assert new_data.find('\nFe3A 2.0 1.0 ') is not -1
+                assert new_data.find('\nFe3A Cani -3.468 -3.468 -3.468 0.0 0.0 0.0') is not -1
+        elif 'experiments' in option:
+            assert os.path.exists(os.path.join(path, 'experiments.cif'))
+            with open(os.path.join(path, 'experiments.cif'), 'r') as new_reader:
+                new_data = new_reader.read()
+                assert new_data.find('\ndata_pd') is not -1
+                assert new_data.find('\n_setup_offset_2theta -0.385404') is not -1
+                assert new_data.find('\n5.0 166.47 106.51 426.73 109.08') is not -1
+
+    with tempfile.TemporaryDirectory() as td:
+        cal.writeMainCif(td)
+        file_tester(td, option=['main'])
+
+    with tempfile.TemporaryDirectory() as td:
+        cal.writePhaseCif(td)
+        file_tester(td, option=['phases'])
+
+    with tempfile.TemporaryDirectory() as td:
+        cal.writeExpCif(td)
+        file_tester(td, option=['experiments'])
