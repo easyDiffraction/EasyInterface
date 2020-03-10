@@ -300,6 +300,7 @@ def test_add_phase(cal):
     cal.setPhases(phases)
     assert len(phases) == 2
 
+
 def test_cif_writers(cal):
 
     def file_tester(path: str, option=None):
@@ -311,29 +312,26 @@ def test_cif_writers(cal):
             assert os.path.exists(os.path.join(path, 'main.cif'))
             with open(os.path.join(path, 'main.cif'), 'r') as new_reader:
                 new_data = new_reader.read()
-                assert new_data.find('_name Fe3O4') is not -1
-                assert new_data.find('_phases phases.cif') is not -1
-                assert new_data.find('_experiments experiments.cif') is not -1
+                assert new_data.find('_name Fe3O4') != -1
+                assert new_data.find('_phases phases.cif') != -1
+                assert new_data.find('_experiments experiments.cif') != -1
         elif'phases' in option:
             assert os.path.exists(os.path.join(path, 'phases.cif'))
             with open(os.path.join(path, 'phases.cif'), 'r') as new_reader:
                 new_data = new_reader.read()
-                assert new_data.find('\ndata_Fe3O4') is not -1
-                assert new_data.find('\n_cell_length_b 8.36212') is not -1
-                assert new_data.find('\nFe3B Fe3+ 0.5 0.5 0.5 1.0 Uiso d 0.0 16 ') is not -1
-                assert new_data.find('\nFe3A 2.0 1.0 ') is not -1
-                assert new_data.find('\nFe3A Cani -3.468 -3.468 -3.468 0.0 0.0 0.0') is not -1
+                print(new_data)
+                assert new_data.find('data_Fe3O4') != -1
+                assert new_data.find('_cell_length_b 8.36212') != -1
+                assert new_data.find('Fe3B Fe3+ 0.5 0.5 0.5 1.0 Uiso d 0.0 16 ') != -1
+                assert new_data.find('Fe3A 2.0 1.0 ') != -1
+                assert new_data.find('Fe3A Cani -3.468 -3.468 -3.468 0.0 0.0 0.0') != -1
         elif 'experiments' in option:
             assert os.path.exists(os.path.join(path, 'experiments.cif'))
             with open(os.path.join(path, 'experiments.cif'), 'r') as new_reader:
                 new_data = new_reader.read()
-                assert new_data.find('\ndata_pd') is not -1
-                assert new_data.find('\n_setup_offset_2theta -0.385404') is not -1
-                assert new_data.find('\n5.0 166.47 106.51 426.73 109.08') is not -1
-
-    with tempfile.TemporaryDirectory() as td:
-        cal.saveCifs(td)
-        file_tester(td)
+                assert new_data.find('data_pd') != -1
+                assert new_data.find('_setup_offset_2theta -0.385404') != -1
+                assert new_data.find('5.0 166.47 106.51 426.73 109.08') != -1
 
     with tempfile.TemporaryDirectory() as td:
         cal.writeMainCif(td)
