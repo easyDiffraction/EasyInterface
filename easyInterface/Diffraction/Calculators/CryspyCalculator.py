@@ -1110,8 +1110,8 @@ class CryspyCalculator:
         return Pd(data_name=experiment['name'], background=backgrounds, resolution=resolution, meas=pattern,
                   phase=phases, setup=instrument)
 
-    def associatePhaseToExp(self, exp_name: str, phase_name: str, scale: float) -> NoReturn:
-        cryspyPhaseObj = cryspyPhase(label=phase_name, scale=scale)
+    def associatePhaseToExp(self, exp_name: str, phase_name: str, scale: float, igsize: float = 0.0) -> NoReturn:
+        cryspyPhaseObj = cryspyPhase(label=phase_name, scale=scale, igsize=igsize)
         idx = self._experiment_names.index(exp_name)
         self._cryspy_obj.experiments[idx].phase = PhaseL([cryspyPhaseObj, *self._cryspy_obj.experiments[idx].phase.item])
         self._log.info('Associated phase %s to experiment %s', phase_name, exp_name)
