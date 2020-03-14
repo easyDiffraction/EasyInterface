@@ -92,6 +92,11 @@ BASE_UNITS = {
     }
 }
 
+PRETTY_UNIT = {
+    'ang': '\u212B',
+    'deg': '\u00B0',
+}
+
 # Accept kb, mb, gb ... as well.
 BASE_UNITS["memory"].update({k.lower(): v
                              for k, v in BASE_UNITS["memory"].items()})
@@ -263,9 +268,17 @@ class Unit(Mapping):
     def __repr__(self):
         sorted_keys = sorted(self._unit.keys(),
                              key=lambda k: (-self._unit[k], k))
-        return " ".join(["{}^{}".format(k, self._unit[k])
-                         if self._unit[k] != 1 else k
-                         for k in sorted_keys if self._unit[k] != 0])
+        str_list = []
+        for k in sorted_keys:
+            kk = k
+            if k in PRETTY_UNIT.keys():
+                kk = PRETTY_UNIT[k]
+            if self._unit[k] != 0:
+                if self._unit[k] != 1:
+                    str_list.append("{}^{}".format(kk, self._unit[k]))
+                else:
+                    str_list.append(kk)
+        return " ".join(str_list)
 
     def __str__(self):
         return self.__repr__()

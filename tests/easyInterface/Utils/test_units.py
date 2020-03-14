@@ -184,7 +184,7 @@ def test_lengthFWU():
     x = LengthArray(4.2, "ang")
     pytest.approx(float(x.to("cm")), 4.2e-08)
     assert float(x.to("pm")) == 420
-    assert str(x / 2) == "2.1 ang"
+    assert str(x / 2) == "2.1 \u212B"
 
 
 def test_array_algebra():
@@ -240,5 +240,5 @@ def test_factors():
     assert str(e).endswith("Ha")
     l = LengthArray([1.0], "ang").to("bohr")
     assert str(l).endswith(" bohr")
-    v = ArrayWithUnit([1, 2, 3], "bohr^3").to("ang^3")
-    assert str(v).endswith(' ang^3')
+    v = ArrayWithUnit([1, 2, 3], "bohr^3").to("\u212B^3")
+    assert str(v).endswith(' \u212B^3')
