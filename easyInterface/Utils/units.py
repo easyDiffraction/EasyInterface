@@ -1,13 +1,14 @@
 # coding: utf-8
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
+#   Licensed under the GNU General Public License v3.0
+#   Copyright (c) of the author (github.com/wardsimon)
+#   Created: 14/3/2020
+import numbers
 from collections import defaultdict
 from collections.abc import Sequence, Mapping
-import numpy as np
-from numbers import Number
-import numbers
 from functools import partial
+from numbers import Number
 
+import numpy as np
 import scipy.constants as const
 
 """
@@ -88,7 +89,7 @@ BASE_UNITS = {
     },
     "angle": {
         "deg": 1,
-        "rad": 180/const.pi,
+        "rad": 180 / const.pi,
     }
 }
 
@@ -97,10 +98,12 @@ PRETTY_UNIT = {
     'deg': '\u00B0',
 }
 
+BASE_UNITS['length']['\u212B'] = BASE_UNITS['length']['ang']
+BASE_UNITS['angle']['\u00B0'] = BASE_UNITS['angle']['deg']
+
 # Accept kb, mb, gb ... as well.
 BASE_UNITS["memory"].update({k.lower(): v
                              for k, v in BASE_UNITS["memory"].items()})
-
 
 # This current list are supported derived units defined in terms of powers of
 # SI base units and constants.
