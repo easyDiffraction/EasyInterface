@@ -1,42 +1,47 @@
-import os
+#  Licensed under the GNU General Public License v3.0
+#  Copyright (c) of the author (github.com/wardsimon)
+#  Created: 12/3/2020
 
-from typing import Tuple, NoReturn, Optional
+import os
+from typing import Tuple, Optional
 
 import cryspy
 import pycifstar
-
 from asteval import Interpreter
+from cryspy.cif_like.cl_crystal import Crystal
+from cryspy.cif_like.cl_pd import Pd, PdBackground, PdBackgroundL, PdInstrResolution, PdMeas, PdMeasL, PhaseL, Setup
+from cryspy.cif_like.cl_pd import Phase as cryspyPhase
+from cryspy.corecif.cl_atom_site import AtomSite, AtomSiteL
+from cryspy.corecif.cl_atom_site_aniso import AtomSiteAniso, AtomSiteAnisoL
+# Imports needed to create a phase
+from cryspy.corecif.cl_cell import Cell as cryspyCell
+from cryspy.magneticcif.cl_atom_site_susceptibility import AtomSiteSusceptibility, AtomSiteSusceptibilityL
+## Start cryspy imports
+# Imports needed to create a cryspyObj
+from cryspy.scripts.cl_rhochi import RhoChi
+from cryspy.symcif.cl_space_group import SpaceGroup as cpSpaceGroup
 
+from easyInterface import logger as logging
 from easyInterface.Diffraction.DataClasses.DataObj.Calculation import *
 from easyInterface.Diffraction.DataClasses.DataObj.Experiment import *
 from easyInterface.Diffraction.DataClasses.PhaseObj.Phase import *
 from easyInterface.Diffraction.DataClasses.Utils.BaseClasses import Base
-
 from easyInterface.Utils.Helpers import time_it
 
-# Imports needed to create a cryspyObj
-from cryspy.scripts.cl_rhochi import RhoChi
-from cryspy.cif_like.cl_crystal import Crystal
-from cryspy.cif_like.cl_pd import Phase as cryspyPhase
-from cryspy.cif_like.cl_pd import Pd, PdBackground, PdBackgroundL, PdInstrResolution, PdMeas, PdMeasL, PhaseL, Setup
-
-# Imports needed to create a phase
-from cryspy.corecif.cl_cell import Cell as cryspyCell
-from cryspy.corecif.cl_atom_site import AtomSite, AtomSiteL
-from cryspy.corecif.cl_atom_site_aniso import AtomSiteAniso, AtomSiteAnisoL
-from cryspy.magneticcif.cl_atom_site_susceptibility import AtomSiteSusceptibility, AtomSiteSusceptibilityL
-from cryspy.symcif.cl_space_group import SpaceGroup as cpSpaceGroup
-
-from easyInterface import logger as logging
+# Version info
+cryspy_version = 'Undefined'
+try:
+    from cryspy import __version__ as cryspy_version
+except ImportError:
+    logging.logger.info('Can not find cryspy version. Using default text')
+CALCULATOR_INFO = {
+    'name': 'CrysPy',
+    'version': cryspy_version,
+    'url': 'https://github.com/ikibalin/cryspy'
+}
 
 PHASE_SEGMENT = "_phases"
 EXPERIMENT_SEGMENT = "_experiments"
-
-CALCULATOR_INFO = {
-    'name': 'CrysPy',
-    'version': '0.2.0',
-    'url': 'https://github.com/ikibalin/cryspy'
-}
 
 
 class CryspyCalculator:
@@ -223,7 +228,8 @@ class CryspyCalculator:
         if experiment_name in self._experiment_names:
             self._log.info('Experiment found, removing')
             experiments = self._cryspy_obj.experiments
-            self._cryspy_obj.experiments = [experiment for experiment in experiments if experiment.data_name != experiment_name]
+            self._cryspy_obj.experiments = [experiment for experiment in experiments if
+                                            experiment.data_name != experiment_name]
             self._experiment_names = []
             if self._cryspy_obj.experiments:
                 self._experiment_names = [experiment.data_name for experiment in self._cryspy_obj.experiments]
@@ -1113,7 +1119,8 @@ class CryspyCalculator:
     def associatePhaseToExp(self, exp_name: str, phase_name: str, scale: float, igsize: float = 0.0) -> NoReturn:
         cryspyPhaseObj = cryspyPhase(label=phase_name, scale=scale, igsize=igsize)
         idx = self._experiment_names.index(exp_name)
-        self._cryspy_obj.experiments[idx].phase = PhaseL([cryspyPhaseObj, *self._cryspy_obj.experiments[idx].phase.item])
+        self._cryspy_obj.experiments[idx].phase = PhaseL(
+            [cryspyPhaseObj, *self._cryspy_obj.experiments[idx].phase.item])
         self._log.info('Associated phase %s to experiment %s', phase_name, exp_name)
 
     def disassociatePhaseFromExp(self, exp_name: str, phase_name: str) -> NoReturn:
